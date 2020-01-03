@@ -17,15 +17,25 @@
             pattern="[0-9]"
             class="form-control"
             placeholder="Quantity"
+            :class="{danger: insufficientFunds}"
           />
         </div>
         <div class="pull-right">
-          <button class="btn btn-success" @click="buyStock" :disabled="cannotBuy">Buy</button>
+          <button
+            class="btn btn-success"
+            @click="buyStock"
+            :disabled="cannotBuy"
+          >{{insufficientFunds ? 'Insufficient' : 'Buy'}}</button>
         </div>
       </div>
     </div>
   </div>
 </template>
+<style scoped>
+.danger {
+  border: 1px solid red;
+}
+</style>
 <script>
 export default {
   props: ["stock"],
@@ -48,7 +58,17 @@ export default {
   },
   computed: {
     cannotBuy() {
-      return this.quantity <= 0 || isNaN(Number(this.quantity));
+      return (
+        this.insufficientFunds ||
+        this.quantity <= 0 ||
+        isNaN(Number(this.quantity))
+      );
+    },
+    funds() {
+      return this.$store.getters.funds;
+    },
+    insufficientFunds() {
+      return this.quantity * this.stock.price > this.funds;
     }
   }
 };

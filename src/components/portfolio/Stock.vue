@@ -17,15 +17,25 @@
             pattern="[0-9]"
             class="form-control"
             placeholder="Quantity"
+            :class="{danger: insufficientQuantity}"
           />
         </div>
         <div class="pull-right">
-          <button class="btn btn-success" @click="sellStock" :disabled="cannotSell">Sell</button>
+          <button
+            class="btn btn-success"
+            @click="sellStock"
+            :disabled="cannotSell"
+          >{{insufficientQuantity ? 'Not enough' : 'Sell'}}</button>
         </div>
       </div>
     </div>
   </div>
 </template>
+<style scoped>
+.danger {
+  border: 1px solid red;
+}
+</style>
 <script>
 import { mapActions } from "vuex";
 
@@ -52,7 +62,14 @@ export default {
   },
   computed: {
     cannotSell() {
-      return this.quantity <= 0 || isNaN(Number(this.quantity));
+      return (
+        this.insufficientQuantity ||
+        this.quantity <= 0 ||
+        isNaN(Number(this.quantity))
+      );
+    },
+    insufficientQuantity() {
+      return this.quantity > this.stock.quantity;
     }
   }
 };
